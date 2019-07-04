@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <stdexcept>
+#include <cmath>
 
 #include <openssl/sha.h>
 #include <iomanip>
@@ -67,6 +68,7 @@ string read_packet (int client_socket)
 
 static const char* const lut = "0123456789abcdef";
 
+// https://stackoverflow.com/a/3382894
 string string_to_hex(const string& input)
 {
     size_t len = input.length();
@@ -82,6 +84,7 @@ string string_to_hex(const string& input)
     return output;
 }
 
+// https://stackoverflow.com/a/3382894
 string hex_to_string(const string& input)
 {
     size_t len = input.length();
@@ -104,6 +107,7 @@ string hex_to_string(const string& input)
     return output;
 }
 
+// https://stackoverflow.com/a/35727057
 string urandom(int size) {
     int length = size/8;
     char * random_value = new char[length]; // Declare value to store data into
@@ -113,7 +117,7 @@ string urandom(int size) {
         urandomf.read(random_value, length); // Read from urandom
         if(urandomf) // Check if stream is ok, read succeeded
         {
-            return random_value;
+            return string(random_value, length);
         }
         else // Read failed
         {
@@ -126,6 +130,7 @@ string urandom(int size) {
     return 0;
 }
 
+// https://stackoverflow.com/a/2458382
 string sha256(const string str) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
@@ -140,8 +145,8 @@ string sha256(const string str) {
 }
 
 double min_processing_time(int p_length) {
-    int num = p_length/8;
-    return 2^num;
+    double num = p_length/8;
+    return pow(2, num);
 }
 
 double max_processing_time(int p_length) {

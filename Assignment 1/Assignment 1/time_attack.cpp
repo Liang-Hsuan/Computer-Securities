@@ -176,7 +176,7 @@ void process_connection (int server_socket, string user)
         
         // Send user name to server
         send (server_socket, user_name.c_str(), strlen(user_name.c_str()), MSG_NOSIGNAL);
-        usleep(200000);
+        usleep(100000);
         
         string solution = "";
         bool success = false;

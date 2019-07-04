@@ -29,6 +29,7 @@
 #include <ctime>
 #include <cstring>
 #include <cerrno>
+
 using namespace std;
 
 #include <sys/types.h>
@@ -47,14 +48,18 @@ string urandom(int size);
 
 int P_length = 8;
 
-int main (int argc, char * arg[])
+int main (int argc, char * argv[])
 {
-    if (argc != 2) {
-        cerr << "Usage: port P_length (optional)" << endl;
-        return 0;
+    int port = 10333;
+    
+    if (argc == 2)
+        port = atoi(argv[1]);
+    else if (argc == 3) {
+        port = atoi(argv[1]);
+        //P_length = atoi(argv[2]);
     }
     
-    listen_connections (10361);
+    listen_connections (port);
     
     return 0;
 }
@@ -130,10 +135,11 @@ void process_connection (int client_socket)
         string hex_R = string_to_hex(R);
         
         // Generate P
+        cout << "P length: " << P_length << endl;
         string P = urandom(P_length);
         string hex_P = string_to_hex(P);
         
-        cout << "R: " << R << ", P: " << P << endl;
+        cout << "R: " << hex_R << ", P: " << hex_P << endl;
         
         // Concate R and P
         string challenge = hex_R + ',' + hex_P + '\n';
@@ -141,21 +147,24 @@ void process_connection (int client_socket)
         // Set 30 seconds timeout
         // http://forums.codeguru.com/showthread.php?353217-example-of-SO_RCVTIMEO-using-setsockopt()&p=1213892#post1213892
         struct timeval tv;
-        tv.tv_sec = max_processing_time(P_length) + 2; // plus 2 account for transmission delay
-        setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
+        tv.tv_sec = max_processing_time(P_length) + 0.1; // plus 0.1 account for transmission delay
+        setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
+        
+        // Start timer
+        time_t start;
+        time(&start);
         
         // Send challenge to client
         cout << "Sending challenge: " << challenge << endl;
         send(client_socket, challenge.c_str(), strlen(challenge.c_str()), MSG_NOSIGNAL);
         
-        // Start timer
-        clock_t start = clock();
-        
         // Receive solution from client
         const string & hex_solution = read_packet(client_socket);
         
         // Stop timer
-        double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
+        time_t end;
+        time (&end);
+        double duration = difftime(end, start);
         
         cout << "Taking " << setprecision(2) << duration << "s to receive from client" << endl;
         
@@ -165,7 +174,7 @@ void process_connection (int client_socket)
         cout << "Minimum duration: " << setprecision(2) << min_duration << "s" << endl;
         
         // Check client processing time
-        if (duration < min_processing_time(P_length) + 2) { // plus 2 account for transmission delay
+        if (duration < min_duration) { // plus 0.1 account for transmission delay
             cerr << "Time for processing taking too short" << endl;
             close(client_socket);
             return;
@@ -178,10 +187,10 @@ void process_connection (int client_socket)
             return;
         }
         
+        cout << "Received solution: " << hex_solution << endl;
+        
         // Decode hex solution
         string solution = hex_to_string(hex_solution);
-        
-        cout << "Received solution: " << solution << endl;
         
         // Check solution starts with R
         if (solution.rfind(R, 0) != 0) {

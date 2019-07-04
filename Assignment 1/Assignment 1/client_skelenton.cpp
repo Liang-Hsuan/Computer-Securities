@@ -29,6 +29,7 @@
 #include <ctime>
 #include <cstring>
 #include <cerrno>
+
 using namespace std;
 
 #include <sys/types.h>
@@ -47,10 +48,10 @@ int socket_to_server (const char * IP, int port);
 void process_connection (int server_socket, Types execution_type);
 string urandom(int size);
 
-int main(int argc, char * arg[])
+int main(int argc, char * args[])
 {
-    string host = "129.97.56.23";
-    int port = 10361;
+    string host = "127.0.0.1";
+    int port = 10333;
     Types execution_type = Correct;
     
     if (argc == 2) {
@@ -62,26 +63,20 @@ int main(int argc, char * arg[])
         host = args[1];
         port = atoi(args[2]);
         
-        switch(args[3]) {
-            case "WrongStart":
-                execution_type = WrongStart;
-                break;
-            case "WrongEnd":
-                execution_type = WrongEnd;
-                break;
-            case "WrongLength":
-                execution_type = WrongLength;
-                break;
-            case "WrongHash":
-                execution_type = WrongHash;
-                break;
-            case "TimeTooLong":
-                execution_type = TimeTooLong;
-                break;
-            case "TimeTooShort":
-                execution_type = TimeTooShort;
-        }
+        if (strcmp(args[3], "WrongStart") == 0)
+            execution_type = WrongStart;
+        else if (strcmp(args[3], "WrongEnd") == 0)
+            execution_type = WrongEnd;
+        else if (strcmp(args[3], "WrongLength") == 0)
+            execution_type = WrongLength;
+        else if (strcmp(args[3], "WrongHash") == 0)
+            execution_type = WrongHash;
+        else if (strcmp(args[3], "TimeTooLong") == 0)
+            execution_type = TimeTooLong;
+        else if (strcmp(args[3], "TimeTooShort") == 0)
+            execution_type = TimeTooShort;
     }
+
     
     // The function expects an IP address, and not a
     // hostname such as "localhost" or ecelinux1, etc.
@@ -89,7 +84,7 @@ int main(int argc, char * arg[])
     
     if (server_socket != -1)
     {
-        process_connection(server_socket, Correct);
+        process_connection(server_socket, execution_type);
     }
     else
     {
@@ -136,34 +131,36 @@ void process_connection (int server_socket, Types execution_type)
         getline(challenge_stream, hex_P, ',');
         
         // Change P if WrongStart
-        if (execution_type == WrongStart)
+        if (execution_type == WrongHash)
             hex_P = string_to_hex(urandom(hex_P.size()*4));
         
         // Convert hex encoded R to string
         string R = hex_to_string(hex_R);
         string wrong_R = urandom(128);
         
-        cout << "R: " << R << endl;
-        cout << "P hex: " << hex_P << endl;
+        cout << "R: " << hex_R << endl;
+        cout << "P: " << hex_P << endl;
         
         string solution;
         string hash_solution;
         
         // Send to server right not if TimeTooShort
-        if (execution_type = TimeTooShort) {
+        if (execution_type == TimeTooShort) {
             send (server_socket, "dummy\n", 7, MSG_NOSIGNAL);
             string result = read_packet(server_socket);
             close(server_socket);
         }
         
         // Calculate maximum and minimum processing time
-        double max_duration = max_processing_time(hex_P.size()/2);
-        double min_duration = min_processing_time(hex_P.size()/2);
+        double max_duration = max_processing_time(hex_P.size()*4);
+        double min_duration = min_processing_time(hex_P.size()*4);
         
+        cout << "Minimum duration: " << min_duration << "s" << endl;
         cout << "Maximum duration: " << max_duration << "s" << endl;
         
         // Start timer
-        clock_t start = clock();
+        time_t start;
+        time(&start);
         
         // Proof of work
         do {
@@ -188,14 +185,16 @@ void process_connection (int server_socket, Types execution_type)
             }
         } while (hash_solution.rfind(hex_P, 0) != 0);
         
+        // Stop timer
+        time_t end;
+        time(&end);
+        double duration = difftime(end, start);
+        
         // Check minimum duration
-        double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
         while (duration < min_duration) {
             usleep(0.5 * 1000 * 1000); // sleep for 0.5s
             duration += 0.5;
         }
-        
-        cout << "Solution: " << solution << endl;
         
         // Hex encode solution
         string hex_solution = string_to_hex(solution);
@@ -206,7 +205,7 @@ void process_connection (int server_socket, Types execution_type)
             usleep(60 * 1000 * 1000);
         
         // Send challenge solution to server
-        cout << "Sending solution hex: " << hex_solution << endl;
+        cout << "Sending solution: " << hex_solution << endl;
         send (server_socket, hex_solution.c_str(), strlen(hex_solution.c_str()), MSG_NOSIGNAL);
         
         // Read result from server

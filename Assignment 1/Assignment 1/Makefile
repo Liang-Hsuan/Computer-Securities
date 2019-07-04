@@ -7,4 +7,4 @@ client: common.h client_skelenton.cpp
 time_attack:
 	g++ -o time_attack.out time_attack.cpp
 
-all: server client time_attack
+default: server client time_attack
