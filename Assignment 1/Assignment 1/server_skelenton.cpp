@@ -56,7 +56,7 @@ int main (int argc, char * argv[])
         port = atoi(argv[1]);
     else if (argc == 3) {
         port = atoi(argv[1]);
-        //P_length = atoi(argv[2]);
+        P_length = atoi(argv[2]);
     }
     
     listen_connections (port);
@@ -147,7 +147,7 @@ void process_connection (int client_socket)
         // Set 30 seconds timeout
         // http://forums.codeguru.com/showthread.php?353217-example-of-SO_RCVTIMEO-using-setsockopt()&p=1213892#post1213892
         struct timeval tv;
-        tv.tv_sec = max_processing_time(P_length) + 0.1; // plus 0.1 account for transmission delay
+        tv.tv_sec = max_processing_time(P_length) + 0.5; // plus 0.5 account for transmission delay
         setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
         
         // Start timer
