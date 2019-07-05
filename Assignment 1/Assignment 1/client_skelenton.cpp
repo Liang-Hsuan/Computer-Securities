@@ -160,6 +160,7 @@ void process_connection (int server_socket, Types execution_type)
         
         // Start timer
         time_t start;
+        time_t end;
         time(&start);
         
         // Proof of work
@@ -177,7 +178,8 @@ void process_connection (int server_socket, Types execution_type)
             // cout << "Hash: " << hash_solution << ", P hex: " << hex_P << endl;
             
             // Check maximum duration
-            double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
+            time(&end);
+            double duration = difftime(end, start);
             if (duration > max_duration) {
                 cerr << "Taking too long to process" << endl;
                 close(server_socket);
@@ -186,7 +188,6 @@ void process_connection (int server_socket, Types execution_type)
         } while (hash_solution.rfind(hex_P, 0) != 0);
         
         // Stop timer
-        time_t end;
         time(&end);
         double duration = difftime(end, start);
         
