@@ -1,15 +1,15 @@
 <?php
 
 /******************************************************************************
- * This file contains the server side PHP code that students need to modify
+ * This file contains the server side PHP code that students need to modify 
  * to implement the password safe application.  Another PHP file, server.php,
  * should not need to be modified and handles initialization of some variables,
  * resource arbitration, and outputs the reponse.  The last PHP file is api.php
  * which should also not be modified by students and which provides an API
  * for resource functions to communicate with clients.
- *
+ * 
  * Student code in this file should only interact with the outside world via
- * the parameters to the functions.  These parameters are the same for each
+ * the parameters to the functions.  These parameters are the same for each 
  * function.  The Request and Reponse classes can be found in api.php.
  * For more information on PDO database connections, see the documentation at
  * https://www.php.net/manual/en/book.pdo.php or other websites.
@@ -31,35 +31,35 @@
  * request from the client.  These map to the resources the client JavaScript
  * will call when the user performs certain actions.
  * The functions are:
- *    - preflight -- This is a special function in that it is called both
+ *    - preflight -- This is a special function in that it is called both 
  *                   as a separate "preflight" resource and it is also called
- *                   before every other resource to perform any preflight
- *                   checks and insert any preflight response.  It is
+ *                   before every other resource to perform any preflight 
+ *                   checks and insert any preflight response.  It is 
  *                   especially important that preflight returns true if the
  *                   request succeeds and false if something is wrong.
  *                   See server.php to see how preflight is called.
  *    - signup -- This resource should create a new account for the user
  *                if there are no problems with the request.
- *    - identify -- This resource identifies a user and returns any
- *                  information that the client would need to log in.  You
- *                  should be especially careful not to leak any information
+ *    - identify -- This resource identifies a user and returns any 
+ *                  information that the client would need to log in.  You 
+ *                  should be especially careful not to leak any information 
  *                  through this resource.
  *    - login -- This resource checks user credentials and, if they are valid,
  *               creates a new session.
  *    - sites -- This resource should return a list of sites that are saved
- *               for a logged in user.  This result is used to populate the
+ *               for a logged in user.  This result is used to populate the 
  *               dropdown select elements in the user interface.
- *    - save -- This resource saves a new (or replaces an existing) entry in
+ *    - save -- This resource saves a new (or replaces an existing) entry in 
  *              the password safe for a logged in user.
  *    - load -- This resource loads an existing entry from the password safe
  *              for a logged in user.
  *    - logout -- This resource should destroy the existing user session.
  *
  * It is VERY important that resources set appropriate HTTP response codes!
- * If a resource returns a 5xx code (which is the default and also what PHP
- * will set if there is an error executing the script) then I will assume
+ * If a resource returns a 5xx code (which is the default and also what PHP 
+ * will set if there is an error executing the script) then I will assume  
  * there is a bug in the program during grading.  Similarly, if a resource
- * returns a 2xx code when it should fail, or a 4xx code when it should
+ * returns a 2xx code when it should fail, or a 4xx code when it should 
  * succeed, then I will assume it has done the wrong thing.
  *
  * You should not worry about the database getting full of old entries, so
@@ -68,7 +68,7 @@
  * The database connection is to the sqlite3 database "passwordsafe.db".
  * The commands to create this database (and therefore its schema) can
  * be found in "initdb.sql".  You should familiarize yourself with this
- * schema.  Not every table or field must be used, but there are many
+ * schema.  Not every table or field must be used, but there are many 
  * helpful hints contained therein.
  * The database can be accessed to run queries on it with the command:
  *    sqlite3 passwordsafe.db
@@ -85,11 +85,11 @@
  *    - failure       -- sets a failure status message
  *    - set_data      -- returns arbitrary data to the client (in json)
  *    - set_cookie    -- sets an HTTP-only cookie on the client that
- *                       will automatically be returned with every
+ *                       will automatically be returned with every 
  *                       subsequent request.
  *    - delete_cookie -- tells the client to delete a cookie.
  *    - set_token     -- passes a token (via data, not headers) to the
- *                       client that will automatically be returned with
+ *                       client that will automatically be returned with 
  *                       every subsequent request.
  *
  * A few things you will need to know to succeed:
@@ -105,10 +105,10 @@
  *
  * Notice that, like JavaScript, PHP is loosely typed.  A common paradigm in
  * PHP is for a function to return some data on success or false on failure.
- * Care should be taken with these functions to test for failure using ===
- * (as in, if($result !== false ) {...}) because not using === or !== may
+ * Care should be taken with these functions to test for failure using === 
+ * (as in, if($result !== false ) {...}) because not using === or !== may 
  * result in unexpected ceorcion of a valid response (0) to false.
- *
+ * 
  *****************************************************************************/
 
 
@@ -135,7 +135,7 @@ function signup(&$request, &$response, &$db) {
   $username = $request->param("username"); // The requested username from the client
   $password = $request->param("password"); // The requested password from the client
   $email    = $request->param("email");    // The requested email address from the client
-
+  
   // Respond with a message of success.
   $response->set_http_code(201); // Created
   $response->success("Account created.");
@@ -147,7 +147,7 @@ function signup(&$request, &$response, &$db) {
 
 /**
  * Handles identification requests.
- * This resource should return any information the client will need to produce
+ * This resource should return any information the client will need to produce 
  * a log in attempt for the given user.
  * Care should be taken not to leak information!
  */
@@ -191,7 +191,7 @@ function sites(&$request, &$response, &$db) {
   log_to_console("Found and returned sites");
 
   return true;
-
+      
 }
 
 /**
@@ -239,5 +239,4 @@ function logout(&$request, &$response, &$db) {
 
   return true;
 }
-
 ?>

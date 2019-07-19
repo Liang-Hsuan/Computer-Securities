@@ -17,7 +17,7 @@ function log_to_console($message) {
 
 /**
  * Request - the request object that will be used to pass values from the client.
- * Request objects will be constructed by the arbitration code and passed by reference
+ * Request objects will be constructed by the arbitration code and passed by reference 
  * to the resource functions, so resources should not create new ones.
  * Students may want to use the following methods:
  *   param     - get the value of a parameter passed by the client
@@ -25,7 +25,7 @@ function log_to_console($message) {
  *   cookie    - get the value of a cookie passed by the client, presumably having been set by a Response
  *   client_ip - get the IP address of the client if it is known
  *   header    - get the value of a request header from the client
- */
+ */ 
 class Request {
   private $params;
   private $tokens;
@@ -46,11 +46,11 @@ class Request {
     if (isset($_SERVER["REMOTE_ADDR"])) {
       $this->client_ip = $_SERVER["REMOTE_ADDR"];
     }
-
+    
     $this->cookies = $_COOKIE;
     $this->headers = getallheaders();
   }
-
+  
   /**
    * Gets a parameter having been passed by the client.
    * An example of this use of params is the following.
@@ -72,16 +72,16 @@ class Request {
     }
     return false;
   }
-
+  
   /**
    * Gets a token returned by the client.
    * This is the counterpart of the Response::set_token method.
    * Tokens work just like cookies from the perspective of the server, in that they
-   * should always be returned in subsequent requests after they have been set in
-   * a response.  The client handling of this is done in client.js and students
+   * should always be returned in subsequent requests after they have been set in 
+   * a response.  The client handling of this is done in client.js and students 
    * do not need to do anything to make the mechanism work.
-   * The difference between tokens and cookies is that tokens are passed in the
-   * data, not the headers, of requests and responses.  Because of this, tokens are
+   * The difference between tokens and cookies is that tokens are passed in the 
+   * data, not the headers, of requests and responses.  Because of this, tokens are 
    * available to JavaScript, while the cookies set by Response::set_cookies are not.
    * Returns false if no such token was set.
    */
@@ -91,13 +91,13 @@ class Request {
     }
     return false;
   }
-
+  
   /**
    * Gets a cookie returned by the client.
    * This is the counterpart of the Response::set_cookie method.
    * Cookies are sent by the client in the request headers.  After being set by
-   * the set_cookie method they should always be returned by subsequent requests,
-   * unless they expire.  Unlike tokens, cookies can expire and can also be
+   * the set_cookie method they should always be returned by subsequent requests, 
+   * unless they expire.  Unlike tokens, cookies can expire and can also be 
    * deleted.  The Response object also sets cookies to HTTP-only, meaning they
    * cannot be read by JavaScript.
    * Returns false if no such cookie was set.
@@ -108,7 +108,7 @@ class Request {
     }
     return false;
   }
-
+  
   /**
    * Gets the client IP address if it is available.
    * This gets the client IP address.  It may not be available in all cases.
@@ -117,7 +117,7 @@ class Request {
   function client_ip() {
     return $this->client_ip;
   }
-
+  
   /**
    * Gets a header from the client request.
    * This method gets the raw data from the client headers.  It should be used
@@ -125,7 +125,7 @@ class Request {
    * obtained via the other Request methods.  However, the method is available if
    * you want direct access to the headers.
    * Returns false if no such header was set.
-   */
+   */   
   function header($name) {
     if (isset($this->headers[$name])) {
       return $this->headers[$name];
@@ -136,7 +136,7 @@ class Request {
 
 /**
  * Response - the response object that will be used to pass values to the client.
- * Reponse objects will be constructed by the arbitration code and passed by reference
+ * Reponse objects will be constructed by the arbitration code and passed by reference 
  * to the resource functions, so resources should not create new ones.
  * Students may want to use the following methods:
  *   set_http_code - sets the HTTP response code
@@ -146,7 +146,7 @@ class Request {
  *   delete_cookie - tells the client to delete a cookie
  *   set_token     - adds a token to be stored by the client and returned with future requests
  *   set_data      - sets arbitrary data items to be returned to the client
- */
+ */ 
 class Response {
   private $resource;
   private $response_code;
@@ -166,7 +166,7 @@ class Response {
     $this->tokens = array();
     $this->data = array();
   }
-
+  
   /**
    * Sets an HTTP response code.
    * The code should be an integer.
@@ -175,7 +175,7 @@ class Response {
   function set_http_code($code) {
     $this->response_code = $code;
   }
-
+  
   /**
    * Marks the response as one of success and sets a success message.
    * Note that this method does not set an HTTP response code!
@@ -184,7 +184,7 @@ class Response {
     $this->succeeded = true;
     $this->message = $message;
   }
-
+  
   /**
    * Marks the response as one of failure and sets a failure message.
    * Note that this method does not set an HTTP response code!
@@ -193,19 +193,19 @@ class Response {
     $this->succeeded = false;
     $this->message = $message;
   }
-
+  
   /**
    * Sets a cookie that will be sent to the client.
    * Cookies should be returned by the client in each subsequent request until they expire
    * or they are deleted.  They are set with the HTTP-only flag, so they cannot be read
-   * by JavaScript.  Leaving the $expires parameter as the default value will set
+   * by JavaScript.  Leaving the $expires parameter as the default value will set 
    * expiry to "session" meaning the cookie will be deleted once the user closes their
    * browser.  To set an explicit expiry use a Unix timestamp.
    */
   function add_cookie($name, $value, $expires = 0) {
     $this->cookies[] = ["name" => $name, "value" => $value, "expires" => $expires];
   }
-
+  
   /**
    * Tells the client to remove a cookie that was previously set.
    * This is accomplished by setting an expiration date in the past.
@@ -217,16 +217,16 @@ class Response {
 
   /**
    * Set a token on the response, which the client should return in every subsequent request.
-   * As mentioned above, tokens work just like cookies in that they are automatically
+   * As mentioned above, tokens work just like cookies in that they are automatically 
    * stored and passed again by the client.  Tokens are also session length, meaning they will
    * be removed once the user closes the tab.  Unlike cookies, tokens have no expiry and may
-   * not be deleted by the server (although you could override their value).  They are
+   * not be deleted by the server (although you could override their value).  They are 
    * passed in the data returned to the client and not via response headers.
    */
   function set_token($name, $value) {
     $this->tokens[$name] = $value;
   }
-
+  
   /**
    * Set arbitrary response data that the client code may use.
    * This is how resources should return data to the client.
@@ -248,7 +248,7 @@ class Response {
   function set_data($name, $value) {
     $this->data[$name] = $value;
   }
-
+  
   /***************************************************
    * Code below here should not be needed by students.
    * It is all just used by server.php.
@@ -262,7 +262,7 @@ class Response {
   function get_http_code() {
     return $this->response_code;
   }
-
+  
   /**
    * Get all the cookies that have been set on this Response object.
    * Students should not need to use this method, which is here for the benefit of server.php
@@ -271,7 +271,7 @@ class Response {
   function get_cookies() {
     return $this->cookies;
   }
-
+  
   /**
    * Gets the JSON that should be returned to the client.
    * This function should not be used directly by students, but is used by server.php.
@@ -283,14 +283,14 @@ class Response {
     } else {
       $response["failure"] = $this->message;
     }
-
+    
     if (count($this->tokens) > 0) {
       $response["tokens"] = $this->tokens;
     }
-
+    
     return json_encode($response);
   }
-
+  
 }
 
 ?>

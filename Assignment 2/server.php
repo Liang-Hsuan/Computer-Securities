@@ -8,7 +8,7 @@
 require("api.php");
 // include the resources code that students should modify
 require("resources.php");
-
+ 
 // Define constants for use when function calls require flags
 define("CREATE_ASSOC_ARRAYS", true);
 define("STRICT_TYPES", true);
@@ -41,7 +41,7 @@ if ($request_method == "POST") {
     if (preflight($request, $response, $db)) {
       signup($request, $response, $db);
     }
-  }
+  } 
   else if (in_array("identify", $url_params, STRICT_TYPES)) {
     $response = new Response("identify");
     if (preflight($request, $response, $db)) {
@@ -77,13 +77,13 @@ if ($request_method == "POST") {
     if (preflight($request, $response, $db)) {
       logout($request, $response, $db);
     }
-  }
+  } 
   else {
     $response = new Response("default");
     $response->set_http_code(404); // Not found
     $response->failure("Resource not found");
   }
-
+  
 }
 
 // This is an easy way to test functionality

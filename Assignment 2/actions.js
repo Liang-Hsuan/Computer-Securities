@@ -1,10 +1,10 @@
 "use strict";
 
 /*****************************************************************************
- * This is the JavaScript file that students need to modify to implement the
- * password safe application.  The other file, client.js, should be fine
+ * This is the JavaScript file that students need to modify to implement the 
+ * password safe application.  The other file, client.js, should be fine 
  * without modification.  That file handles page navigation, event handler
- * binding, token setting/retrieving, preflighting, and provides some
+ * binding, token setting/retrieving, preflighting, and provides some 
  * utility functions that this file should use for encoding/decoding strings
  * and making server requests.
  *
@@ -12,9 +12,9 @@
  * the server!  It handles a few things including tokens that you should not
  * reimplement.
  *
- * Most of the functions in this file handle a form submission.  These
+ * Most of the functions in this file handle a form submission.  These 
  * are passed as arguments the input/output DOM elements of the form that was
- * submitted.  The "this" keyword for these functions is the form element
+ * submitted.  The "this" keyword for these functions is the form element 
  * itself.  The functions that handle form submissions are:
  *   - login
  *   - signup
@@ -23,7 +23,7 @@
  *
  * The other functions are each called for different reasons with different
  * parameters:
- *   - loadSite -- This function is called to populate the input or output
+ *   - loadSite -- This function is called to populate the input or output 
  *                 elements of the add or load password form.   The function
  *                 takes the site to load (a string) and the form elements
  *                 as parameters.
@@ -31,11 +31,11 @@
  *               It should clean up any data and inform the server to log
  *               out the user.
  *   - credentials -- This is a utility function meant to be used by the
- *                    login function.  It is not called from other client
+ *                    login function.  It is not called from other client 
  *                    code (in client.js)!  The purpose of providing the
  *                    outline of this function is to help guide students
  *                    towards an implementation that is not too complicated
- *                    and to give ideas about how some steps can be
+ *                    and to give ideas about how some steps can be 
  *                    accomplished.
  *
  * The utility functions in client.js are:
@@ -43,7 +43,7 @@
  *                      and returns a promise with two properties:
  *                        * response (a JavaScript response object)
  *                        * json (the decoded data from the server)
- *   - showContent -- Shows the specified page of the application.  This is
+ *   - showContent -- Shows the specified page of the application.  This is 
  *                    how student code should redirect the site to other
  *                    pages after a user action.
  *   - status -- displays a status message at the top of the page.
@@ -62,9 +62,9 @@
  * Also, you may want to use:
  *      https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
  *
- * The subtle crypto error messages are useless.  Typical errors are due to
+ * The subtle crypto error messages are useless.  Typical errors are due to 
  * passing unexpected parameters to the functions.  Take a look at the files
- * from Tutorial 4 for examples of using
+ * from Tutorial 4 for examples of using 
  *      crypto.subtle.importKey
  *      crypto.subtle.sign
  *      crypto.subtle.decrypt
@@ -73,7 +73,7 @@
  *      crypto.subtle.digest
  *
  * The most common error is to pass a key or iv buffer that is the wrong size.
- * For AES-CBC, for example, the key must be length 16 or 32 bytes, and the
+ * For AES-CBC, for example, the key must be length 16 or 32 bytes, and the 
  * IV must be 16 bytes.
  *
  * To concatenate two typed Uint8Arrays (a1, a2), you can do the following:
@@ -87,10 +87,10 @@
 /**
  * This is an async function that should return the username and password to send
  * to the server for login credentials.
- */
+ */ 
 async function credentials(username, password) {
   var idResult;
-
+  
   // get any information needed to log in
   idResult = await serverRequest("identify", {"username":username});
   // bail if something went wrong
@@ -109,10 +109,10 @@ function login(userInput, passInput) {
   // get the form fields
   var username = userInput.value,
       password = passInput.value;
-
+      
   credentials(username, password).then(function(idJson) {
     // do any needed work with the credentials
-
+  
     // Send a login request to the server.
     serverRequest("login", // resource to call
                   {"username":username, "password":password} // this should be populated with needed parameters
@@ -120,7 +120,7 @@ function login(userInput, passInput) {
       // If the login was successful, show the dashboard.
       if (result.response.ok) {
         // do any other work needed after successful login here
-
+      
         showContent("dashboard");
 
       } else {
@@ -143,7 +143,7 @@ function signup(userInput, passInput, passInput2, emailInput) {
       email     = emailInput.value;
 
   // do any preprocessing on the user input here before sending to the server
-
+  
   // send the signup form to the server
   serverRequest("signup",  // resource to call
                 {"username":username, "password":password, "email":email} // this should be populated with needed parameters
@@ -169,7 +169,7 @@ function save(siteInput, userInput, passInput) {
       siteuser   = userInput.value,
       sitepasswd = passInput.value,
       encrypted; // this will need to be populated
-
+  
   // send the data, along with the encrypted password, to the server
   serverRequest("save",  // the resource to call
                 {"site":site, "siteuser":siteuser, "sitepasswd":encrypted} // this should be populated with any parameters the server needs
