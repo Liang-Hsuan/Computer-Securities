@@ -20,14 +20,14 @@
   <header>
     <h1>ECE 458 Password Safe</h1>
   </header>
-  
+
   <div id="message">
   </div>
 
   <main>
     <div id="login" class="content">
       <h2>Log in</h2>
-    
+
       <form>
         <label for="username">Username</label>
         <input type="text" placeholder="Your Username" name="username" required />
@@ -37,13 +37,13 @@
 
         <button type="submit">Login</button>
       </form>
-      
+
       <a href="/#signup">Sign up for new account</a>
     </div>
-    
+
     <div id="signup" class="content">
       <h2>Sign up</h2>
-    
+
       <form>
         <div class="field">
           <label for="username">Username: </label>
@@ -54,7 +54,7 @@
           <label for="password">Password: </label>
           <input type="password" placeholder="Desired Password" name="password" required />
         </div>
-        
+
         <div class="field">
           <label for="password2">Repeat Password: </label>
           <input type="password" placeholder="Desired Password" name="password2" required />
@@ -68,24 +68,24 @@
         <button type="submit">Sign up</button>
       </form>
     </div>
-    
+
     <div id="dashboard" class="content">
       <h2>Dashboard</h2>
-      
+
       <a href="/#save">Add a password</a>
       <a href="/#load">Retrieve a password</a>
       <a href="/#logout">Log out</a>
     </div>
-    
+
     <div id="save" class="content">
       <h2>Add a password to the safe, or edit an existing one</h2>
-      
+
       <p>
       <select name="sitelist">
         <option value="default" selected>Add a new site password</option>
       </select>
       </p>
-      
+
       <form>
         <div class="field">
           <label for="site">Site or App: </label>
@@ -96,12 +96,12 @@
           <label for="siteuser">Site User (not required): </label>
           <input type="text" placeholder="The user for this password" name="siteuser" />
         </div>
-      
+
         <div class="field">
           <label for="sitepasswd">Site Password: </label>
           <input type="password" placeholder="The password to store" name="sitepasswd" required />
         </div>
-        
+
         <button type="submit">Save the password</button>
       </form>
 
@@ -110,13 +110,13 @@
 
     <div id="load" class="content">
       <h2>Load a password from the safe</h2>
-      
+
       <p>
       <select name="sitelist">
         <option value="default" selected>Select a site</option>
       </select>
       </p>
-      
+
       <form>
         <div class="field">
           <label for="site">Site or App: </label>
@@ -127,18 +127,18 @@
           <label for="siteuser">Site User: </label>
           <output type="text" name="siteuser"></output>
         </div>
-      
+
         <div class="field">
           <label for="sitepasswd">Site Password: </label>
           <output type="text" name="sitepasswd"></output>
         </div>
-        
+
         <button type="submit">Decrypt</button>
       </form>
 
       <a href="/#dashboard">Dashboard</a>
     </div>
-    
+
     <div id="logout" class="content">
       <h2>Logging out...</h2>
     </div>

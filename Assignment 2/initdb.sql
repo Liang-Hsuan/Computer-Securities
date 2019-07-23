@@ -21,21 +21,22 @@ CREATE TABLE IF NOT EXISTS user_login (
   salt      varchar(255) NOT NULL,
   challenge varchar(255),
   expires   datetime,
-  FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+  FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_session (
   sessionid  varchar(255) PRIMARY KEY,
-  username   varchar(255) UNIQUE NOT NULL,
+  username   varchar(255) NOT NULL,
   expires    datetime NOT NULL,
-  FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+  FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS user_session_sessionid_expires ON user_session(sessionid, expires);
 
 CREATE TABLE IF NOT EXISTS web_session (
   sessionid  varchar(255) PRIMARY KEY,
   expires    datetime NOT NULL,
-  metadata   varchar(255)
+  metadata   varchar(255),
+  FOREIGN KEY (sessionid) REFERENCES user_session(sessionid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS web_session_sessionid_expires ON web_session(sessionid, expires);
 
@@ -47,5 +48,5 @@ CREATE TABLE IF NOT EXISTS user_safe (
   siteiv     varchar(255),
   modified   datetime,
   PRIMARY KEY (username, site)
-  FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+  FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE
 );

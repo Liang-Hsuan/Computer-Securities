@@ -41,7 +41,7 @@ if ($request_method == "POST") {
     if (preflight($request, $response, $db)) {
       signup($request, $response, $db);
     }
-  } 
+  }
   else if (in_array("identify", $url_params, STRICT_TYPES)) {
     $response = new Response("identify");
     if (preflight($request, $response, $db)) {

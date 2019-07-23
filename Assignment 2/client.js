@@ -7,9 +7,8 @@
  *******************************************************************/
 var currentPage = "default";
 
-
 /*******************************************************************
- * This top part of the file contains the utility functions that 
+ * This top part of the file contains the utility functions that
  * students will need to use in their code.
  *******************************************************************/
 
@@ -72,7 +71,7 @@ function status(message) {
 
 /**
  * This handles standard server status messages.
- * Use the function by passing in the parameter passed from the 
+ * Use the function by passing in the parameter passed from the
  * promise from a serverRequest.
  */
 function serverStatus(response) {
@@ -83,9 +82,8 @@ function serverStatus(response) {
   }
 }
 
-
 /**
- * Takes a typed array (like a Uint8Array) or an ArrayBuffer and 
+ * Takes a typed array (like a Uint8Array) or an ArrayBuffer and
  * returns a hex encoded string for its values.
  */
 function bufferToHexString(buffer) {
@@ -133,7 +131,7 @@ const loader = {
 function init() {
   // navigation
   window.onhashchange = navigate;
-  
+
   // set up the forms
   var contentDivs = document.querySelectorAll(".content");
   for (let i = 0; i < contentDivs.length; i++) {
@@ -145,29 +143,29 @@ function init() {
       form.addEventListener("submit", function (event) {
         // get all the input elements
         let inputs = form.querySelectorAll("input, output");
-      
+
         // call the action function, passing the form as this
         // and the inputs as the parameters
         window[content.id].apply(form, inputs);
-        
+
         // Prevent form submission
         event.preventDefault();
         event.stopPropagation();
       });
     }
   }
-  
+
   // call navigate, if it returns true then preflight
   if (navigate()) {
     serverRequest("preflight", {});
   }
-  
+
 }
 
 
 /**
  * Sets any tokens passed from the server.
- * Tokens are stored using sessionStorage which is origin specific and 
+ * Tokens are stored using sessionStorage which is origin specific and
  * cleared whenever the tab is closed.
  */
 function setTokens(json) {
@@ -183,7 +181,7 @@ function setTokens(json) {
 
 /**
  * Gets any tokens passed from the server.
- * Tokens are stored using sessionStorage which is origin specific and 
+ * Tokens are stored using sessionStorage which is origin specific and
  * cleared whenever the tab is closed.
  */
 function getTokens() {
@@ -205,7 +203,7 @@ function getTokens() {
  * This function is called after the index page finishes rendering.
  * It is also called when the URL anchor hash changes.
  * The return value is used on page initialization.
- * If no other requests are being made on load, then return true so 
+ * If no other requests are being made on load, then return true so
  * a preflight request will be sent.  If a request is being made on
  * load, return false and preflight will be bypassed.
  */
@@ -280,7 +278,7 @@ function loadSiteWrapper(event) {
   // get the selected option
   var selected = this.selectedOptions[0],
       site = selected.textContent;
-  
+
   // get the form in the same page as this Select element
   var node = this;
   while (node != null && !node.className.includes("content")) {
@@ -291,7 +289,7 @@ function loadSiteWrapper(event) {
       siteElement = form.querySelector("input[name=site], output[name=site]"),
       userElement = form.querySelector("input[name=siteuser], output[name=siteuser]"),
       passElement = form.querySelector("input[name=sitepasswd], output[name=sitepasswd]");
-  
+
   // if add new was selected, clear the inputs
   if (selected.value == "default") {
     siteElement.value = "";
@@ -299,8 +297,7 @@ function loadSiteWrapper(event) {
     passElement.value = "";
     return false;
   }
-  
+
   // otherwise, call the student code mostly the same way form submit code is called
   loadSite.call(form, site, siteElement, userElement, passElement);
 }
-
