@@ -131,6 +131,7 @@ function login(userInput, passInput) {
             // If the login was successful, show the dashboard.
             if (result.response.ok) {
               // do any other work needed after successful login here
+              sessionStorage.setItem('encrypt_key_component', bufferToHexString(buffer1));
 
               showContent("dashboard");
             } else {
@@ -197,8 +198,9 @@ function save(siteInput, userInput, passInput) {
       sitepasswd = passInput.value.trim(),
       siteiv     = window.crypto.getRandomValues(new Uint8Array(16));
 
+  const encrypt_key_component = sessionStorage.getItem('encrypt_key_component');
   const alg = { name: 'AES-GCM', iv: siteiv };
-  crypto.subtle.importKey('raw', hexStringToUint8Array(getTokens()['encrypt_key_component']), alg, false, ['encrypt']).then(function(key) {
+  crypto.subtle.importKey('raw', hexStringToUint8Array(encrypt_key_component), alg, false, ['encrypt']).then(function(key) {
     crypto.subtle.encrypt(alg, key, utf8ToUint8Array(sitepasswd)).then(function(encrypted) {
       // send the data, along with the encrypted password, to the server
       serverRequest("save",  // the resource to call
@@ -239,7 +241,7 @@ function loadSite(siteName, siteElement, userElement, passElement) {
       userElement.value = result['json']['siteuser'];
 
       if (requiredDecryption) {
-        const encrypt_key_component = getTokens()['encrypt_key_component'];
+        const encrypt_key_component = sessionStorage.getItem('encrypt_key_component');
         const alg = { name: 'AES-GCM', iv: new hexStringToUint8Array(result['json']['siteiv']) };
         crypto.subtle.importKey('raw', hexStringToUint8Array(encrypt_key_component), alg, false, ['decrypt']).then(function(key) {
           crypto.subtle.decrypt(alg, key, hexStringToUint8Array(result['json']['sitepasswd'])).then(function(decrypted) {
@@ -270,7 +272,7 @@ function loadSite(siteName, siteElement, userElement, passElement) {
 function load(siteInput, userInput, passInput) {
   // you will need to entirely populate this function
   const siteivInput = document.body.querySelector("input[name=siteiv]");
-  const encrypt_key_component = getTokens()['encrypt_key_component'];
+  const encrypt_key_component = sessionStorage.getItem('encrypt_key_component');
 
   const alg = { name: 'AES-GCM', iv: new hexStringToUint8Array(siteivInput.value) };
   crypto.subtle.importKey('raw', hexStringToUint8Array(encrypt_key_component), alg, false, ['decrypt']).then(function(key) {

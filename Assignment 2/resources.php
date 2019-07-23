@@ -298,7 +298,6 @@ function login(&$request, &$response, &$db) {
 
   # Add token for user session
   $response->set_token('token', $token);
-  $response->set_token('encrypt_key_component', $user['passwd']);
 
   $response->set_http_code(200);
   $response->success("Successfully logged in.");
