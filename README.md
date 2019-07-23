@@ -10,3 +10,4 @@
 - SQL injection
 - Man-in-the-middle attack
 - Cross-site request forgery
+- Advanced Encryption Standard
