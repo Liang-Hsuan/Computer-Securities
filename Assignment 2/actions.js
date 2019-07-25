@@ -126,7 +126,7 @@ function login(userInput, passInput) {
 
           // Send a login request to the server.
           serverRequest("login", // resource to call
-            {"username":username, "password":password, "challenge":idJson['challenge']} // this should be populated with needed parameters
+            {"username":username, "password":password} // this should be populated with needed parameters
           ).then(function(result) {
             // If the login was successful, show the dashboard.
             if (result.response.ok) {

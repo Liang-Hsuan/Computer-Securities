@@ -215,11 +215,26 @@ function identify(&$request, &$response, &$db) {
   $login = $logins[0];
 
   # Grab the salt
-  $salt = $login['salt'];
+  $salt      = $login['salt'];
+  $challenge = rand_str();
+
+  # Try to update a new challenge
+  try {
+    $stmt = $db->prepare("UPDATE user_login SET challenge=:challenge;");
+
+    $stmt->execute(array(
+      ':challenge' => $challenge
+    ));
+  } catch(PDOException $e) {
+    $response->set_http_code(400);
+    $response->failure("Error when identifying account.");
+    log_to_console($e->getMessage());
+    return false;
+  }
 
   # Return salt and challenge to user
   $response->set_data('salt', $salt);
-  $response->set_data('challenge', rand_str());
+  $response->set_data('challenge', $challenge);
 
   $response->set_http_code(200);
   $response->success("Successfully identified user.");
@@ -236,19 +251,25 @@ function identify(&$request, &$response, &$db) {
 function login(&$request, &$response, &$db) {
   $username  = $request->param("username");
   $password  = $request->param("password");
-  $challenge = $request->param("challenge");
 
-  # Search database for user_login
+  # Search database for user
   $stmt = $db->query("SELECT * FROM user WHERE username=:username;");
   $stmt->execute(array(
     ':username' => $username,
   ));
   $users = $stmt->fetchAll();
-
   $user = $users[0];
 
+  # Search database for user_login
+  $stmt = $db->query("SELECT * FROM user_login WHERE username=:username;");
+  $stmt->execute(array(
+    ':username' => $username,
+  ));
+  $user_logins = $stmt->fetchAll();
+  $user_login = $user_logins[0];
+
   # Process the challenge
-  $password_challenge = hash('sha256', $user['passwd'] . $challenge);
+  $password_challenge = hash('sha256', $user['passwd'] . $user_login['challenge']);
 
   # Check the challenge solution from client is correct
   if ($password != $password_challenge) {
