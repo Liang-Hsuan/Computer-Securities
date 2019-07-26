@@ -524,13 +524,13 @@ function authenticate(&$request, &$db) {
   $token     = $request->token('token');
 
   # Check for token of username and session id
-  if (!$username || !$sessionid) {
+  if (!$username || !$sessionid || !$token) {
     log_to_console("Token not set");
     return false;
   }
 
   # Search database for user_session
-  $stmt = $db->query("SELECT * FROM user_session INNER JOIN web_session ON user_session.sessionid = web_session.sessionid WHERE user_session.sessionid=:sessionid;");
+  $stmt = $db->query("SELECT * FROM user_session INNER JOIN web_session ON user_session.sessionid=web_session.sessionid WHERE user_session.sessionid=:sessionid;");
   $stmt->execute(array(
     ':sessionid' => $sessionid,
   ));

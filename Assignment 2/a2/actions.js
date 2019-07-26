@@ -114,26 +114,27 @@ function login(userInput, passInput) {
     if (idJson == 0) return;
 
     // do any needed work with the credentials
-    password = utf8ToUint8Array(username + password);
-    window.crypto.subtle.digest('SHA-256', password).then(buffer1 => {
-      password = utf8ToUint8Array(bufferToHexString(buffer1) + idJson['salt']);
+    var secret = utf8ToUint8Array(username + password);
+    window.crypto.subtle.digest('SHA-256', secret).then(buffer1 => {
+      secret = utf8ToUint8Array(bufferToHexString(buffer1) + idJson['salt']);
 
-      window.crypto.subtle.digest('SHA-256', password).then(buffer2 => {
-        password = utf8ToUint8Array(bufferToHexString(buffer2) + idJson['challenge']);
+      window.crypto.subtle.digest('SHA-256', secret).then(buffer2 => {
+        secret = utf8ToUint8Array(bufferToHexString(buffer2) + idJson['challenge']);
 
-        window.crypto.subtle.digest('SHA-256', password).then(buffer3 => {
-          password = bufferToHexString(buffer3);
+        window.crypto.subtle.digest('SHA-256', secret).then(buffer3 => {
+          secret = bufferToHexString(buffer3);
 
           // Send a login request to the server.
           serverRequest("login", // resource to call
-            {"username":username, "password":password} // this should be populated with needed parameters
+            {"username":username, "password":secret} // this should be populated with needed parameters
           ).then(function(result) {
             // If the login was successful, show the dashboard.
             if (result.response.ok) {
               // do any other work needed after successful login here
-              sessionStorage.setItem('encrypt_key_component', bufferToHexString(buffer1));
-
-              showContent("dashboard");
+              window.crypto.subtle.digest('SHA-256', utf8ToUint8Array(password)).then(buffer4 => {
+                sessionStorage.setItem('encrypt_key_component', bufferToHexString(buffer4));
+                showContent("dashboard");
+              });
             } else {
               // If the login failed, show the login page with an error message.
               serverStatus(result);
