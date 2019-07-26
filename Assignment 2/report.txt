@@ -1,6 +1,26 @@
 Name: Liang-Hsuan Ma
 ID: 20604842
 
+############################
+Assumption:
+############################
+The client and server are connected through TLS protocol.
+
+############################
+TL;DR:
+############################
+When a user signup the password field send to the server is actually SHA256(username + password) so the server never know the real password for the user. The backend will salted the given hashed password and store in the database.
+
+When a user login, a challenge and salt will send to the client, the client computes the salted challege solution then send it to the server. The server validates the solution then create a 15-minute user session which has session id in the cookie and token in the session storage. Every subsequent request from the client after login will have { headers: { cookies: { sessionid: xxx } }, data: { tokens: token: xxx } }. The server will authenticate the session id with associated token for every restricted page. The reason the token is not stored in the cookie is to avoid putting everything into one basket. Meanwhile, in the client side, the client will store the SHA256(original password), which no one else know, for encryption key in the session storage.
+
+When save a site, a site IV is generated in client side and using the encryption key from the session storage to encrypt the site password. Therefore, the backend cannot know the actual value of the site password, only the user can decrypt it.
+
+When load a site, the client will use the site IV that encrypted the site password along with the encryption key from the session storage to decrypt the site password.
+
+############################
+Workflow for Each Step
+############################
+
 Signup:
 
 Step 1 - Front End:
@@ -18,13 +38,13 @@ Step 1 - Front End:
 The username field first submitted to the backend.
 
 Step 2 - Back End:
-Search the database for the username, if there is no such a user then return 400. Grab the salt saved when signup and generate a 128-bit random challenge. Save the challenge for the user login into database, then return the salt and challenge to the client.
+Search the database for the username, if there is no such a user then return 400. Grab the salt saved when the user signup and generate a 128-bit random challenge. Save the challenge into database for the user login, then return the salt and challenge to the client.
 
 Step 3 - Front End:
 If username identification failed show the error message from the server else continue. First SHA256(username + password), then compute SHA(SHA256(username + password) + salt), finally compute SHA256(SHA256(SHA256(username + password) + salt) + challenge), and send the login request to the backend with the username and solution.
 
 Step 4 - Back End:
-It fetches the password and challenge for the user from database, then compute the challenge solution simply by SHA256(password_in_database + challenge). If the solution from the backend is not the same as the solution from the client then return 400. Create a 128-bit random session id and a 128-bit random token. Insert the session id with the token into the database for the user session with expiry of 15 minutes. The username and session id are then return to client as cookies, whereas token is stored in session storage as the tokens.
+It fetches the salted password and challenge for the user from database, then compute the challenge solution simply by SHA256(salted password + challenge). If the solution from the backend is not the same as the solution from the client then return 400. Create a 128-bit random session id and a 128-bit random token. Insert the session id with the token into the database for the user session with expiry of 15 minutes. The username and session id are then return to client as cookies, whereas token is stored in session storage as the tokens.
 
 Step 5 - Front End:
 If there is any error response from the server show the error message else set the encryption key as SHA256(password) into session storage.
@@ -32,10 +52,10 @@ If there is any error response from the server show the error message else set t
 Save:
 
 Step 1 - Front End:
-Grab the encryption key from session storage and generate a 128-bit random initialization vector. Using the key and IV to AES-GCM encrypt the site password. Submit the encrypted site password along with site name and site user.
+Grab the encryption key from session storage and generate a 128-bit random initialization vector. Using the key and IV to AES-GCM encrypt the site password. Submit the encrypted site password along with site name and site user and site IV.
 
-Step 2 - Front:
-If authentication (see appendix) failed, return 400. Search for the site from database using the site name and current user. If there is such a site exists, update the site data. If there is no such a site, insure the new data.
+Step 2 - Back End:
+If authentication (see appendix) failed, return 400. Search for the site from database using the site name and current user provided from the client. If there is such a site exists, update the site data. If there is no such a site, insert a new data.
 
 Step 3- Front End:
 If there is any error from the backend, show the error message from the server else update the site list for dropdown.
@@ -43,21 +63,21 @@ If there is any error from the backend, show the error message from the server e
 Load Site:
 
 Step 1 - Front End:
-Assign a required decryption flag to true if the site elements are all inputs else set to false. Request the server for the site data from site name.
+Set a required decryption flag to true if the site elements are all inputs else set to false. Request the server for the site data from site name.
 
 Step 2 - Back End:
 If authentication (ses appendix) failed, return 400. Fetch the site data from database. If there is no such a site, return 400. Return site name, site IV, site user, and site password to the client.
 
 Step 3 - Front End:
-If there is any error from the backend, show the error message from the server. Set the site name and site user inputs from the server response. If required decryption flag is true, which means it is in add password page, then AES-GCM decrpyt the password from server response using the encryption key from session storage and site IV from server response. Afterward, set the site password input to the decrypted password value. If required decryption flag is false, which means it is in the retrieve password page, then simply set the password input to the password from server resposnse, but create a hidden input to store the site IV from server response for decryption.
+If there is any error from the backend, show the error message from the server. Set the site name and site user input values from the server response. If required decryption flag is true, which means it is in add a password page, then AES-GCM decrpyt the password from server response using the encryption key from session storage and site IV from server response. Afterward, set the site password input value to the decrypted password value. If required decryption flag is false, which means it is in the retrieve password page, then simply set the password input value to the password from server resposnse, but create a hidden input to store the site IV from server response for future decryption.
 
 Sites:
 
 Step 1 - Front End:
-Send sites get request to the server.
+Send get sites request to the server.
 
 Step 2 - Back End:
-If authentication (see appendix) failed, return 400. Fetch all the sites for the current user. Return the sites data to the client.
+If authentication (see appendix) failed, return 400. Fetch all the sites for the current user. Return the sites list to the client.
 
 Step 3- Front End:
 Populate the sites from server response to the dropdown.
@@ -65,7 +85,7 @@ Populate the sites from server response to the dropdown.
 Load:
 
 Step 1 - Front End:
-Grab the site IV from the hidden input and encryption key from the session storage. AES-GCM decrypt the password field using the site IV and encryption key.
+Grab the site IV from the hidden input and encryption key from the session storage. AES-GCM decrypt the password field using the site IV and encryption key. Finally, delete the hidden input.
 
 Logout:
 
@@ -78,7 +98,9 @@ If authentication (ses appendix) failed, return 400. Delete the user session fro
 Step 3 - Front End:
 If there is any error from the backend, show the error message from the server else redirect to login page.
 
+########################
 Appendix:
+########################
 
 Authentication:
-Grab the username and session id from client request cookies. Grab the token from client request tokens field. If any of username, session id or token is not set return false. Fetch the token from database using the session id provided by the client. If there is no such a user session, return false. If the session username is not the username in database, return false. If the user session is expired, return false. If the session token is not the same as the token in database, return false. Finally, return true.
+Grab the username and session id from client request cookies. Grab the token from client request tokens field. If any of username, session id or token is not set return false. Fetch the token from database using the session id provided by the client. If there is no such a user session, return false. If the username is not the session username in database, return false. If the user session is expired, return false. If the session token is not the same as the token in database, return false. Finally, return true.
